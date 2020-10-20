@@ -25,7 +25,7 @@ Each file contains metadata about a song and the artist of that song in JSON for
 **Log Dataset**: 
 The log files in the dataset are partitioned by year and month:
 
-    sdsdsd log_data/2018/11/2018-11-12-events.json
+    log_data/2018/11/2018-11-12-events.json
 Users activity log in JSON format. A sample file:
 
     {"artist":"Girl Talk","auth":"Logged In","firstName":"Kaylee","gender":"F","itemInSession":8,"lastName":"Summers","length":160.15628,"level":"free","location":"Phoenix-Mesa-Scottsdale, AZ","method":"PUT","page":"NextSong","registration":1540344794796.0,"sessionId":139,"song":"Once again","status":200,"ts":1541107734796,"userAgent":"\"Mozilla\/5.0 (Windows NT 6.1; WOW64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/35.0.1916.153 Safari\/537.36\"","userId":"8"}
