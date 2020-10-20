@@ -104,6 +104,9 @@ The project consists of following files:
   - Transforms them into the fact and dimension tables using Spark.
   - Writes the fact and dimension tables into S3 as parquet files.
 
+**data_explore_s3.ipynb**:  A simple notebook to explore files in S3 buckets.
+
+**check_analytics_tables.ipynb**:  A notebook to check songsplays table on the data lake build after the ETL.
  
 # Running the scripts
 After cloning the repository, please follow these steps below to execute the project:
