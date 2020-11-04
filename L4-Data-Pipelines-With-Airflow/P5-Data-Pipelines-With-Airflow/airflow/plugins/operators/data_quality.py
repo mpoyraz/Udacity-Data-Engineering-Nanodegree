@@ -49,22 +49,25 @@ class DataQualityOperator(BaseOperator):
         self.log.info('First checking if given tables are empty or not')
         valErr = None
         for table in self.tables:
+            # Execute a row count operation on the table
             records = redshift.get_records("SELECT COUNT(*) FROM {}".format(table))
-            # No results returned from the table
+            # Analyze the records returned
             if len(records) < 1 or len(records[0]) < 1:
+                # No results returned from the table
                 emptyErr = "Data quality check failed, table {} returned no results".format(table)
                 self.log.info(emptyErr)
                 if valErr is None:
                     valErr = ValueError(emptyErr)
             else:
                 num_records = records[0][0]
-                # Table has 0 rows
                 if num_records < 1:
+                    # Table has 0 rows
                     emptyErr = "Data quality check failed, table {} contains 0 rows".format(table)
                     self.log.info(emptyErr)
                     if valErr is None:
                         valErr = ValueError(emptyErr)
-            self.log.info("Table {} has {} records, passed initial data quality check".format(table, num_records))
+                else:
+                    self.log.info("Table {} has {} records, passed initial data quality check".format(table, num_records))
         # Raise the first value error if exists
         if valErr:
             raise valErr
