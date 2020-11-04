@@ -12,7 +12,7 @@ class LoadDimensionOperator(BaseOperator):
                  create_sql_stmt=None,
                  select_sql_stmt=None,
                  table=None,
-                 empty_table_before_load=False,
+                 delete_before_load=False,
                  *args, **kwargs):
 
         super(LoadDimensionOperator, self).__init__(*args, **kwargs)
@@ -20,7 +20,7 @@ class LoadDimensionOperator(BaseOperator):
         self.create_sql_stmt = create_sql_stmt
         self.select_sql_stmt = select_sql_stmt
         self.table = table
-        self.empty_table_before_load = empty_table_before_load
+        self.delete_before_load = delete_before_load
 
     def execute(self, context):
         self.log.info('LoadDimensionOperator is starting')
@@ -36,8 +36,8 @@ class LoadDimensionOperator(BaseOperator):
         # Perform the insert operation
         if self.select_sql_stmt and self.table:
             # If enabled, empty the dimention table before insert operation
-            if self.empty_table_before_load:
-                self.log.info("Clearing the dimention table '{}'".format(self.table))
+            if self.delete_before_load:
+                self.log.info("Deleting all rows from dimention table '{}'".format(self.table))
                 redshift.run("DELETE FROM {}".format(self.table))    
             # Construct and execute the insert statement
             insert_sql_stmt = "INSERT INTO {} {}".format(self.table, self.select_sql_stmt)
