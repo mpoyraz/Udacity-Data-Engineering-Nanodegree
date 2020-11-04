@@ -1,4 +1,6 @@
 class SqlQueries:
+
+    # Select statements to be used for insert operations
     songplay_table_insert = ("""
         SELECT
                 md5(events.sessionid || events.start_time) songplay_id,
@@ -51,6 +53,7 @@ class SqlQueries:
         );
     """
 
+    # Create table statements
     songplay_table_create = """
         CREATE TABLE IF NOT EXISTS public.songplays (
             playid varchar(32) NOT NULL,
@@ -136,9 +139,3 @@ class SqlQueries:
             "year" int4
         );
     """
-
-
-
-
-
-

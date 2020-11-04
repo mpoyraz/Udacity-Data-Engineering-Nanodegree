@@ -5,7 +5,8 @@ from airflow.utils.decorators import apply_defaults
 class DataQualityOperator(BaseOperator):
 
     ui_color = '#89DA59'
-    
+
+    # SQL statement to find primary key columns of a table in Redshift
     find_pkey_sql = """
         select KCU.column_name
             from information_schema.table_constraints AS TC
@@ -36,15 +37,14 @@ class DataQualityOperator(BaseOperator):
 
     def execute(self, context):
         self.log.info('DataQualityOperator is starting')
-        
+
         # Get AWS and Redhsift hooks
         redshift = PostgresHook(postgres_conn_id=self.redshift_conn_id)
-        
+
         # Check if tables parameter is defined properly
-        
         if len(self.tables) == 0:
             raise ValueError('"tables" parameter cannot be empty for DataQualityOperator')
-        
+
         # First, check if given tables contains any row
         self.log.info('First checking if given tables are empty or not')
         valErr = None
@@ -68,8 +68,8 @@ class DataQualityOperator(BaseOperator):
         # Raise the first value error if exists
         if valErr:
             raise valErr
-        
-        # If given table has primary key defined, further check pkey column contains null
+
+        # If given table has primary key defined, further check if pkey columns contain null
         self.log.info('Check if primary keys of tables contains NULL values where applicable')
         for table in self.tables:
             records = redshift.get_records(self.find_pkey_sql.format('public', table))
@@ -93,6 +93,6 @@ class DataQualityOperator(BaseOperator):
                         self.log.info('Table {} primary key column {} has no NULL values, passed data quality check'.format(table, col_pkey))
         # Raise the first value error if exists
         if valErr:
-            raise valErr       
-                
+            raise valErr
+
         self.log.info('DataQualityOperator is completed')

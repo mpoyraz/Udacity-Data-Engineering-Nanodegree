@@ -28,7 +28,7 @@ dag = DAG('sparkify_dag',
           #schedule_interval='0 * * * *'
         )
 
-# Define tasks for the dat
+# Define tasks for the dag
 start_operator = DummyOperator(task_id='Begin_execution',  dag=dag)
 
 stage_events_to_redshift = StageToRedshiftOperator(
@@ -117,7 +117,7 @@ run_quality_checks = DataQualityOperator(
 
 end_operator = DummyOperator(task_id='Stop_execution',  dag=dag)
 
-# Assign task ordering
+# Define task orders
 start_operator >> stage_events_to_redshift
 start_operator >> stage_songs_to_redshift
 stage_events_to_redshift >> load_songplays_table

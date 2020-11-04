@@ -22,22 +22,23 @@ class LoadFactOperator(BaseOperator):
 
     def execute(self, context):
         self.log.info('LoadFactOperator is starting')
-        
+
         # Get the Redhsift hook
         redshift = PostgresHook(postgres_conn_id=self.redshift_conn_id)
-        
-        # If given, run create SQL statement before transform operations
+
+        # If given, run create SQL statement before insert operations
         if self.create_sql_stmt is not None:
             self.log.info("Executing the given SQL create statement")
             redshift.run(self.create_sql_stmt)
-        
-        # Execute the insert statement
+
+        # Perform the insert operation
         if self.select_sql_stmt and self.table:
             # Construct the insert statement
             insert_sql_stmt = "INSERT INTO {} {}".format(self.table, self.select_sql_stmt)
+            # Execute the insert statement
             self.log.info("Executing the SQL insert statement")
             redshift.run(insert_sql_stmt)
         else:
-            self.log.info("No insert operation, both SQL select statement and destination table needed for execution")
-        
+            self.log.info("No insert operation performed, both SQL select statement and destination table needed for execution")
+
         self.log.info('LoadFactOperator is completed')

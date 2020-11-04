@@ -24,16 +24,16 @@ class LoadDimensionOperator(BaseOperator):
 
     def execute(self, context):
         self.log.info('LoadDimensionOperator is starting')
-        
+
         # Get AWS and Redhsift hooks
         redshift = PostgresHook(postgres_conn_id=self.redshift_conn_id)
-        
-        # If given, run create SQL statement before transform operations
+
+        # If given, run create SQL statement before insert operation
         if self.create_sql_stmt is not None:
             self.log.info("Executing the given SQL create statement")
             redshift.run(self.create_sql_stmt)
-        
-        # Execute given transfrom SQL statement
+
+        # Perform the insert operation
         if self.select_sql_stmt and self.table:
             # If enabled, empty the dimention table before insert operation
             if self.empty_table_before_load:
@@ -45,5 +45,5 @@ class LoadDimensionOperator(BaseOperator):
             redshift.run(insert_sql_stmt)
         else:
             self.log.info("No insert operation performed, both SQL select statement and destination table needed for execution")
-        
+
         self.log.info('LoadDimensionOperator is completed')
