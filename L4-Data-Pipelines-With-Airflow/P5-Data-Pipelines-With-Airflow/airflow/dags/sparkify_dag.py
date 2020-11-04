@@ -9,23 +9,29 @@ from helpers import SqlQueries
 # AWS and Redshift connections
 REDSHIFT_CONN_ID = "redshift"
 AWS_CREDENTIALS_ID = "aws_credentials"
+
 # S3 bucket and keys
 S3_BUCKET = "udacity-dend"
 S3_KEY_LOG = "log_data"
 S3_KEY_LOG_JSONPATH = "log_json_path.json"
 S3_KEY_SONG = "song_data"
 
+# Define the default args
 default_args = {
     'owner': 'sparkify',
+    'depends_on_past': False,
     'start_date': datetime.now(),
-    #'start_date': datetime(2020, 11, 2),
+    'retries': 3,
+    'retry_delay': timedelta(minutes=5),
+    'email_on_retry': False,
+    'catchup': False
 }
 
 # Create the dag with default args
 dag = DAG('sparkify_dag',
           default_args=default_args,
-          description='Load and transform data in Redshift with Airflow'
-          #schedule_interval='0 * * * *'
+          description='Load and transform data in Redshift with Airflow',
+          schedule_interval='@hourly'
         )
 
 # Define tasks for the dag
