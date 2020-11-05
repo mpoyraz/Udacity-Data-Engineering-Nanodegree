@@ -2,7 +2,7 @@
 In this project, we are building a data pipeline using Apache Airflow to automate ETL jobs and integrate data quality checks.
 The project consists of 2 main parts:
 
- - Creating a Redshift cluster and seting up AWS and Redshift connections on Airflow UI.
+ - Creating a Redshift cluster and setting up connections on Airflow UI for AWS and Redshift access.
  - Running data pipeline 'sparkify-dag' which performs ETL jobs from S3 to Redshift with integrated data quality checks.
 
 # Context
@@ -11,7 +11,7 @@ A music streaming company, Sparkify, has decided that it is time to introduce mo
 They have decided to bring you into the project and expect you to create high grade data pipelines that are dynamic and built from reusable tasks, can be monitored, and allow easy backfills. They have also noted that the data quality plays a big part when analyses are executed on top the data warehouse and want to run tests against their datasets after the ETL steps have been executed to catch any discrepancies in the datasets.
 
 # Datasets
-In this project, we are working with 2 datasets that reside in S3.
+We are working with 2 datasets that reside in S3 for this project:
  - Song data: `s3://udacity-dend/song_data`
  - Log data: `s3://udacity-dend/log_data`
 
@@ -35,9 +35,9 @@ Users activity log in JSON format. A sample file:
 
 # Sparkify DAG
 The dag is designed to perform the following steps:
-- Copy song and user log data from S3 to Redshift into stating tables.
+- Copy song and user log data from S3 to Redshift staging tables.
 - Transform data from staging tables and insert into the songplays Fact table.
-- Transform data from staging tables and insert into the dimention tables 'users', 'songs', 'artists', 'time'.
+- Transform data from staging tables and insert into the dimention tables named 'users', 'songs', 'artists', 'time'.
 - Perform data quality check on the fact and dimention tables and raise an error if needed
 
 The dag is configured with the following properties:
@@ -75,18 +75,33 @@ A custom Airflow operator with a Redshift (Postgres) hook is developed to perfor
 The operator accepts list of Redshift tables and perform 2 types of checks per table:
 1. First, the operator checks number of records in each table.
     - If a table has no rows, logs the issue and raises a ValueError.
-    - If all tables passed this initial data quality check, the operator moves on the 2nd step.
-2. The operator check if a table has any primary keys columns (can be composite as well).
-    - If true, further checks if primary key columns contains any nulls. If any null value present in the primary key column, data quality check fails.
+    - If all tables passed this initial data quality check, the operator moves on to the 2nd step.
+2. The operator checks if a table has any primary keys columns (can be composite as well). User does need to specify the name of primary key for each table, they are automatically found through SQL select statement tailored for Redshift.
+    - If true, further checks if primary key columns contains any nulls. If any null is present in the primary key column, data quality check fails.
     - If false, data quality check is completed successfully.
 
 Data quality check logs from a test run:
-TODO: add the data quality logs later
+```
+INFO - DataQualityOperator is starting
+INFO - First checking if given tables are empty or not
+INFO - Table songplays has 6820 records, passed initial data quality check
+INFO - Table songs has 14896 records, passed initial data quality check
+INFO - Table artists has 10025 records, passed initial data quality check
+INFO - Table users has 104 records, passed initial data quality check
+INFO - Table time has 6820 records, passed initial data quality check
+INFO - Check if primary keys of tables contains NULL values where applicable
+INFO - Table songplays primary key column playid has no NULL values, passed data quality check
+INFO - Table songs primary key column songid has no NULL values, passed data quality check
+INFO - Table artists has no primary keys, passed the data quality check
+INFO - Table users primary key column userid has no NULL values, passed data quality check
+INFO - Table time primary key column start_time has no NULL values, passed data quality check
+INFO - DataQualityOperator is completed
+```
 
 # Running the Data Pipeline
 Perform the following steps to run the data pipeline:
 1. Clone the repository where Airflow is installed & available.
 2. Start Airflow UI and go to Admin -> Connections page.
-    - Add a Amazon WebServices connection named `aws_credentials` using AWS Access key ID as login and Secret access key as password.
-    - Add a Postgress connection named `redshift` and fill up host, schema, login, password and port fields based on Redshift cluster properties.
-3. The sparkify dag is scheduled to run hourly intervals, trigger it manually and monitor its progress as it performs the ETL jobs and then data quality check.
+    - Add a `Amazon WebServices` connection named `aws_credentials` using AWS Access key ID as login and Secret access key as password.
+    - Add a `Postgres` connection named `redshift` and fill up host, schema, login, password and port fields based on Redshift cluster properties.
+3. The sparkify dag is scheduled to run at hourly intervals, trigger it manually and monitor its progress as it performs the ETL jobs and data quality checks.
